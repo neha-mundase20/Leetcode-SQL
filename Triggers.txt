@@ -1,0 +1,140 @@
+Enter password: ****
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 15
+Server version: 8.0.32 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2023, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| airlines           |
+| assg5              |
+| comp_emp           |
+| company            |
+| employee           |
+| information_schema |
+| lab4               |
+| mysql              |
+| performance_schema |
+| procedures         |
+| sys                |
++--------------------+
+11 rows in set (0.00 sec)
+
+mysql> create database Triggers;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> use Triggers;
+Database changed
+
+mysql> create table emp(
+    -> emp_name varchar(30) NOT NULL,
+    -> emp_email varchar(30) PRIMARY KEY,
+    -> emp_city varchar(10),
+    -> emp_salary int);
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> desc emp;
++------------+-------------+------+-----+---------+-------+
+| Field      | Type        | Null | Key | Default | Extra |
++------------+-------------+------+-----+---------+-------+
+| emp_name   | varchar(30) | NO   |     | NULL    |       |
+| emp_email  | varchar(30) | NO   | PRI | NULL    |       |
+| emp_city   | varchar(10) | YES  |     | NULL    |       |
+| emp_salary | int         | YES  |     | NULL    |       |
++------------+-------------+------+-----+---------+-------+
+4 rows in set (0.01 sec)
+
+mysql> insert into emp values ('Shaarvi','shravu123@yahoo.com','Bangalore',35000);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into emp values ('Kartika','kartikaaaa43@gmail.com','Hyderabad',48000);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into emp values ('Shraavi','shravi1920@gmail.com','Mumbai',40000);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from emp;
++----------+------------------------+-----------+------------+
+| emp_name | emp_email              | emp_city  | emp_salary |
++----------+------------------------+-----------+------------+
+| Kartika  | kartikaaaa43@gmail.com | Hyderabad |      48000 |
+| Shraavi  | shravi1920@gmail.com   | Mumbai    |      40000 |
+| Shaarvi  | shravu123@yahoo.com    | Bangalore |      35000 |
++----------+------------------------+-----------+------------+
+3 rows in set (0.00 sec)
+
+mysql> create table transaction_log(
+    -> user_id varchar(15),
+    -> DTSmanipulation datetime,
+    -> description varchar(30));
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> desc transaction_log;
++-----------------+-------------+------+-----+---------+-------+
+| Field           | Type        | Null | Key | Default | Extra |
++-----------------+-------------+------+-----+---------+-------+
+| user_id         | varchar(15) | YES  |     | NULL    |       |
+| DTSmanipulation | datetime    | YES  |     | NULL    |       |
+| description     | varchar(30) | YES  |     | NULL    |       |
++-----------------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> delimiter //
+mysql> create trigger del_trigger
+    -> before delete on emp
+    -> for each row
+    -> begin
+    -> insert into transaction_log values(user(),now(),'Record Deleted Successfully');
+    -> end //
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> delete from emp where emp_name='Kartika';
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from transaction_log;
++----------------+---------------------+-----------------------------+
+| user_id        | DTSmanipulation     | description                 |
++----------------+---------------------+-----------------------------+
+| root@localhost | 2023-05-10 15:56:47 | Record Deleted Successfully |
++----------------+---------------------+-----------------------------+
+1 row in set (0.00 sec)
+
+mysql> delimiter //
+mysql> create trigger insert_trigger
+    -> before insert on emp
+    -> for each row
+    -> begin
+    -> insert into transaction_log values (user(),now(),'Record Inserted Successfully');
+    -> end //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> insert into emp values ('Navya','navya88@gmail.com','Delhi',60000);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from emp;
++----------+----------------------+-----------+------------+
+| emp_name | emp_email            | emp_city  | emp_salary |
++----------+----------------------+-----------+------------+
+| Navya    | navya88@gmail.com    | Delhi     |      60000 |
+| Shraavi  | shravi1920@gmail.com | Mumbai    |      40000 |
+| Shaarvi  | shravu123@yahoo.com  | Bangalore |      35000 |
++----------+----------------------+-----------+------------+
+3 rows in set (0.00 sec)
+
+mysql> select * from transaction_log;
++----------------+---------------------+------------------------------+
+| user_id        | DTSmanipulation     | description                  |
++----------------+---------------------+------------------------------+
+| root@localhost | 2023-05-10 15:56:47 | Record Deleted Successfully  |
+| root@localhost | 2023-05-10 16:11:35 | Record Inserted Successfully |
++----------------+---------------------+------------------------------+
+2 rows in set (0.00 sec)
